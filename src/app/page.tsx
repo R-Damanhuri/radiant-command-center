@@ -5,6 +5,7 @@ import { Task, getMockTasks, sendTaskToAgent } from '@/lib/api';
 import { AgentCard } from '@/components/AgentCard';
 import { KanbanBoard } from '@/components/KanbanBoard';
 import { CommanderPanel } from '@/components/CommanderPanel';
+import { CronJobsCard } from '@/components/CronJobsCard';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { 
@@ -291,12 +292,29 @@ export default function CommandCenter() {
                   Task Board
                 </h2>
               </div>
-              <KanbanBoard
-                tasks={tasks}
-                onTaskMove={handleTaskMove}
-                onTaskAssign={handleTaskAssign}
-                agents={agents.map((a) => ({ id: a.id, name: a.name }))}
-              />
+              <div className="grid grid-cols-1 xl:grid-cols-4 gap-4">
+                {/* Scheduled Jobs - Left Column */}
+                <div className="xl:col-span-1">
+                  <CronJobsCard 
+                    onRun={(jobId, type) => {
+                      console.log('Run job:', jobId, type);
+                    }}
+                    onDelete={(jobId, type) => {
+                      console.log('Delete job:', jobId, type);
+                    }}
+                  />
+                </div>
+                
+                {/* Kanban Board - Right Columns */}
+                <div className="xl:col-span-3">
+                  <KanbanBoard
+                    tasks={tasks}
+                    onTaskMove={handleTaskMove}
+                    onTaskAssign={handleTaskAssign}
+                    agents={agents.map((a) => ({ id: a.id, name: a.name }))}
+                  />
+                </div>
+              </div>
             </section>
           </div>
         )}
@@ -325,12 +343,29 @@ export default function CommandCenter() {
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-xl font-medium">Task Management</h2>
             </div>
-            <KanbanBoard
-              tasks={tasks}
-              onTaskMove={handleTaskMove}
-              onTaskAssign={handleTaskAssign}
-              agents={agents.map((a) => ({ id: a.id, name: a.name }))}
-            />
+            <div className="grid grid-cols-1 xl:grid-cols-4 gap-4">
+              {/* Scheduled Jobs */}
+              <div className="xl:col-span-1">
+                <CronJobsCard 
+                  onRun={(jobId, type) => {
+                    console.log('Run job:', jobId, type);
+                  }}
+                  onDelete={(jobId, type) => {
+                    console.log('Delete job:', jobId, type);
+                  }}
+                />
+              </div>
+              
+              {/* Kanban Board */}
+              <div className="xl:col-span-3">
+                <KanbanBoard
+                  tasks={tasks}
+                  onTaskMove={handleTaskMove}
+                  onTaskAssign={handleTaskAssign}
+                  agents={agents.map((a) => ({ id: a.id, name: a.name }))}
+                />
+              </div>
+            </div>
           </div>
         )}
       </main>
