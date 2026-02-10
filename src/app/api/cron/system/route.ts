@@ -11,12 +11,26 @@ export async function GET() {
     const lines = output.split('\n').filter(line => line.trim() && !line.startsWith('#'));
     
     const jobs = lines.map((line, index) => {
-      // Parse crontab line: "0 2 * * * cd /path && git add . && commit..."
-      const match = line.match(/^(\S+\s+\S+\s+\S+\s+\S+)\s+(.+)$/);
+      // Parse crontab line: "0 2 * * * command"
+      const match = line.match(/^(\S+\s+\S+\s+\S+\s+\S+\s+\S+)\s+(.+)$/);
       if (match) {
         const [_, schedule, command] = match;
+        
+        // Identify backup name from command
+        let name = 'Infrastructure';
+        if (command.includes('workspace-quest')) {
+          name = 'Quest Workspace Backup';
+        } else if (command.includes('command-center')) {
+          name = 'Command Center Backup';
+        } else if (command.includes('radiant-projects')) {
+          name = 'Radiant Projects Backup';
+        } else if (command.includes('workspace')) {
+          name = 'Radiant Workspace Backup';
+        }
+
         return {
           id: `sys-${index}`,
+          name: name,
           schedule: schedule.trim(),
           command: command.trim(),
           type: 'infrastructure',
@@ -27,6 +41,7 @@ export async function GET() {
     
     return NextResponse.json({ jobs });
   } catch (error) {
+    console.error('Failed to fetch system cron:', error);
     return NextResponse.json({ jobs: [] });
   }
 }
