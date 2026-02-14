@@ -20,6 +20,8 @@ export async function GET() {
         let name = 'Infrastructure';
         if (command.includes('workspace-quest')) {
           name = 'Quest Workspace Backup';
+        } else if (command.includes('workspace-forge')) {
+          name = 'Forge Workspace Backup';
         } else if (command.includes('command-center')) {
           name = 'Command Center Backup';
         } else if (command.includes('radiant-projects')) {

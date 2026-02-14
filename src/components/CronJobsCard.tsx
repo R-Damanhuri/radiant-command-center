@@ -51,6 +51,7 @@ export function CronJobsCard({ onRun, onDelete }: CronJobsCardProps) {
     const names: Record<string, string> = {
       'quest': 'Quest',
       'radiant': 'Radiant',
+      'forge': 'Forge',
     };
     return agent ? (names[agent] || agent) : '';
   };
