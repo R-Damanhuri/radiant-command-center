@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Task, getMockTasks, sendTaskToAgent } from '@/lib/api';
+import { getMockTasks, sendTaskToAgent } from '@/lib/api';
 import { AgentCard } from '@/components/AgentCard';
 import { KanbanBoard } from '@/components/KanbanBoard';
 import { CommanderPanel } from '@/components/CommanderPanel';
@@ -20,6 +20,7 @@ import {
   Trash2
 } from 'lucide-react';
 import { AgentDefinition, getAllAgents } from '@/lib/agent-registry';
+import { Task, Agent } from '@/types';
 
 export default function CommandCenter() {
   const [agents, setAgents] = useState<AgentDefinition[]>([]);
@@ -89,58 +90,266 @@ export default function CommandCenter() {
   };
 
   const handleTaskMove = async (taskId: string, newStatus: Task['status']) => {
-    setTasks((prev) =>
-      prev.map((t) => (t.id === taskId ? { 
+    // Update local state
+    const updatedTasks = tasks.map((t) => 
+      t.id === taskId ? { 
         ...t, 
         status: newStatus,
         startedAt: newStatus === 'in-progress' ? new Date().toISOString() : t.startedAt,
         completedAt: newStatus === 'done' ? new Date().toISOString() : t.completedAt,
-      } : t))
+      } : t
     );
+    setTasks(updatedTasks);
     
     // Sync with API
     try {
-      await fetch('/api/tasks', {
+      const response = await fetch('/api/tasks', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'updateStatus', taskId, status: newStatus }),
+        body: JSON.stringify({ 
+          action: 'updateStatus', 
+          taskId, 
+          status: newStatus,
+          result: `Status changed to ${newStatus}`
+        }),
       });
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Failed to sync task status:', {
+          status: response.status,
+          statusText: response.statusText,
+          error: errorText,
+          taskId,
+          newStatus
+        });
+      } else {
+        const result = await response.json();
+        console.log('Task status updated successfully:', result);
+      }
     } catch (error) {
       console.error('Failed to sync task status:', error);
     }
   };
 
   const handleTaskAssign = async (taskId: string, agentId: string) => {
-    setTasks((prev) =>
-      prev.map((t) => (t.id === taskId ? { ...t, assignedAgent: agentId } : t))
+    // Update local state
+    const updatedTasks = tasks.map((t) => 
+      t.id === taskId ? { ...t, assignedAgent: agentId } : t
     );
+    setTasks(updatedTasks);
+    
+    // Sync with API
+    try {
+      const taskToUpdate = tasks.find(t => t.id === taskId);
+      if (taskToUpdate) {
+        const response = await fetch('/api/tasks', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ 
+            id: taskId,
+            assignedAgent: agentId,
+            title: taskToUpdate.title,
+            description: taskToUpdate.description,
+            priority: taskToUpdate.priority
+          }),
+        });
+        
+        if (!response.ok) {
+          console.error('Failed to assign task');
+        }
+      }
+    } catch (error) {
+      console.error('Failed to assign task:', error);
+    }
   };
 
-  const handleCreateTask = (task: Task) => {
-    setTasks((prev) => [task, ...prev]);
+  const handleCreateTask = async (task: Task) => {
+    try {
+      // Send to API
+      const response = await fetch('/api/tasks', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          action: 'create',
+          title: task.title,
+          description: task.description,
+          assignedAgent: task.assignedAgent || 'radiant',
+          priority: task.priority || 'medium',
+          labels: task.labels || []
+        }),
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        // Add new task to local state
+        setTasks(prev => [data.task, ...prev]);
+        return true;
+      } else {
+        console.error('Failed to create task');
+        return false;
+      }
+    } catch (error) {
+      console.error('Failed to create task:', error);
+      return false;
+    }
+  };
+
+  const handleDeleteTask = async (taskId: string) => {
+    try {
+      const response = await fetch(`/api/tasks?id=${taskId}`, {
+        method: 'DELETE',
+      });
+      
+      if (response.ok) {
+        // Remove from local state
+        setTasks(prev => prev.filter(t => t.id !== taskId));
+        console.log('Task deleted successfully:', taskId);
+        return true;
+      } else {
+        const errorText = await response.text();
+        console.error('Failed to delete task:', {
+          status: response.status,
+          statusText: response.statusText,
+          error: errorText,
+          taskId
+        });
+        return false;
+      }
+    } catch (error) {
+      console.error('Failed to delete task:', error);
+      return false;
+    }
+  };
+
+  const handleEditTask = async (taskId: string, updates: Partial<Task>) => {
+    try {
+      const response = await fetch('/api/tasks', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          id: taskId,
+          ...updates
+        }),
+      });
+      
+      if (response.ok) {
+        // Update local state
+        setTasks(prev => prev.map(t => 
+          t.id === taskId ? { ...t, ...updates } : t
+        ));
+        return true;
+      } else {
+        console.error('Failed to edit task');
+        return false;
+      }
+    } catch (error) {
+      console.error('Failed to edit task:', error);
+      return false;
+    }
+  };
+
+  const handleAddTask = (status: TaskStatus) => {
+    const title = prompt('Task title:');
+    if (!title) return;
+    
+    const description = prompt('Task description:');
+    
+    const newTask: Task = {
+      id: `task-${Date.now()}`,
+      title,
+      description: description || '',
+      status,
+      priority: 'medium',
+      createdAt: new Date().toISOString(),
+    };
+    
+    handleCreateTask(newTask);
   };
 
   const handleExecuteAgent = async (agent: Agent) => {
     const taskDescription = prompt(`Send task to ${agent.name}:`);
     if (!taskDescription) return;
     
-    const success = await sendTaskToAgent(agent.role || 'commander', taskDescription);
-    if (success) {
-      // Create a task for tracking
-      const newTask: Task = {
-        id: `task-${Date.now()}`,
-        title: taskDescription.slice(0, 40) + (taskDescription.length > 40 ? '...' : ''),
-        description: taskDescription,
-        status: 'in-progress',
-        assignedAgent: agent.id,
-        createdAt: new Date().toISOString(),
-        priority: 'medium',
-      };
-      setTasks(prev => [newTask, ...prev]);
+    try {
+      // First, create task in backend
+      const createResponse = await fetch('/api/tasks', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'create',
+          title: taskDescription.slice(0, 40) + (taskDescription.length > 40 ? '...' : ''),
+          description: taskDescription,
+          assignedAgent: agent.id,
+          status: 'in-progress', // Start in in-progress since it's being assigned
+          priority: 'medium',
+        }),
+      });
       
-      alert(`✅ Task sent to ${agent.name}!\n\nTask added to kanban for tracking.`);
-    } else {
-      alert(`❌ Failed to send task to ${agent.name}.\n\nMake sure OpenClaw is running.`);
+      if (!createResponse.ok) {
+        const errorText = await createResponse.text();
+        console.error('Failed to create task:', errorText);
+        alert(`❌ Failed to create task: ${errorText}`);
+        return;
+      }
+      
+      const createData = await createResponse.json();
+      const newTask = createData.task;
+      
+      // Then send to agent via OpenClaw
+      const sendSuccess = await sendTaskToAgent(agent.role || 'commander', taskDescription);
+      
+      if (sendSuccess) {
+        // Update task status to reflect it's been sent
+        const updateResponse = await fetch('/api/tasks', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            action: 'updateStatus',
+            taskId: newTask.id,
+            status: 'in-progress',
+            result: `Task sent to ${agent.name}`,
+          }),
+        });
+        
+        if (updateResponse.ok) {
+          const updateData = await updateResponse.json();
+          // Add/update in local state
+          setTasks(prev => {
+            const filtered = prev.filter(t => t.id !== newTask.id);
+            return [updateData.task, ...filtered];
+          });
+        } else {
+          // Still add to local state even if update fails
+          setTasks(prev => [newTask, ...prev]);
+        }
+        
+        alert(`✅ Task sent to ${agent.name}!\n\nTask added to kanban for tracking.`);
+      } else {
+        // If send fails, mark task as todo
+        const failResponse = await fetch('/api/tasks', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            action: 'updateStatus',
+            taskId: newTask.id,
+            status: 'todo',
+            result: `Failed to send to agent`,
+          }),
+        });
+        
+        if (failResponse.ok) {
+          const failData = await failResponse.json();
+          setTasks(prev => [failData.task, ...prev]);
+        } else {
+          setTasks(prev => [newTask, ...prev]);
+        }
+        
+        alert(`✅ Task created but failed to send to ${agent.name}.\n\nTask added to kanban for tracking.`);
+      }
+    } catch (error) {
+      console.error('Error in handleExecuteAgent:', error);
+      alert('❌ Error processing task');
     }
   };
 
@@ -311,6 +520,9 @@ export default function CommandCenter() {
                     tasks={tasks}
                     onTaskMove={handleTaskMove}
                     onTaskAssign={handleTaskAssign}
+                    onDeleteTask={handleDeleteTask}
+                    onEditTask={handleEditTask}
+                    onAddTask={handleAddTask}
                     agents={agents.map((a) => ({ id: a.id, name: a.name }))}
                   />
                 </div>
@@ -362,6 +574,9 @@ export default function CommandCenter() {
                   tasks={tasks}
                   onTaskMove={handleTaskMove}
                   onTaskAssign={handleTaskAssign}
+                  onDeleteTask={handleDeleteTask}
+                  onEditTask={handleEditTask}
+                  onAddTask={handleAddTask}
                   agents={agents.map((a) => ({ id: a.id, name: a.name }))}
                 />
               </div>

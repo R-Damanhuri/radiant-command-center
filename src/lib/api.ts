@@ -1,4 +1,4 @@
-import { Task, IntentAnalysis } from '@/types';
+import { Task } from '@/types';
 import { AGENT_ROLES } from '@/lib/agent-registry';
 
 // Intent analysis
@@ -95,7 +95,7 @@ export async function sendTaskToAgent(agentRole: string, taskDescription: string
 }
 
 // Create task from intent
-export function createTaskFromIntent(intent: IntentAnalysis, userRequest: string): Task {
+export function createTaskFromIntent(intent: any, userRequest: string): Task {
   return {
     id: `task-${Date.now()}`,
     title: userRequest.slice(0, 50) + (userRequest.length > 50 ? '...' : ''),

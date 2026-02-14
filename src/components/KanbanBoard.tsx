@@ -16,6 +16,8 @@ interface KanbanBoardProps {
   tasks: Task[];
   onTaskMove?: (taskId: string, newStatus: TaskStatus) => void;
   onTaskAssign?: (taskId: string, agentId: string) => void;
+  onDeleteTask?: (taskId: string) => void;
+  onEditTask?: (taskId: string, updates: Partial<Task>) => void;
   onAddTask?: (status: TaskStatus) => void;
   agents?: { id: string; name: string }[];
 }
@@ -26,7 +28,15 @@ const columns: { id: TaskStatus; title: string; icon: any; color: string }[] = [
   { id: 'done', title: 'Done', icon: CheckCircle2, color: 'text-emerald-400' },
 ];
 
-export function KanbanBoard({ tasks, onTaskMove, onTaskAssign, onAddTask, agents = [] }: KanbanBoardProps) {
+export function KanbanBoard({ 
+  tasks, 
+  onTaskMove, 
+  onTaskAssign, 
+  onDeleteTask,
+  onEditTask,
+  onAddTask, 
+  agents = [] 
+}: KanbanBoardProps) {
   const getTasksByStatus = (status: TaskStatus) => 
     tasks.filter((t) => t.status === status);
 
@@ -69,6 +79,8 @@ export function KanbanBoard({ tasks, onTaskMove, onTaskAssign, onAddTask, agents
                     task={task}
                     onStatusChange={onTaskMove}
                     onAssign={onTaskAssign}
+                    onDelete={onDeleteTask}
+                    onEdit={onEditTask}
                     agents={agents}
                   />
                 ))}
