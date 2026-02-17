@@ -1,77 +1,12 @@
+
+> command-center@0.1.0 dev
+> next dev
+
 ▲ Next.js 16.1.6 (Turbopack)
 - Local:         http://localhost:3000
 - Network:       http://10.3.4.121:3000
 
 ✓ Starting...
-✓ Ready in 947ms
- POST /api/command 200 in 3.0s (compile: 278ms, render: 2.7s)
-⚠ Cross origin request detected from 100.111.26.7 to /_next/* resource. In a future major version of Next.js, you will need to explicitly configure "allowedDevOrigins" in next.config to allow this.
-Read more: https://nextjs.org/docs/app/api-reference/config/next-config-js/allowedDevOrigins
- GET / 200 in 438ms (compile: 300ms, render: 137ms)
- GET /api/tasks 200 in 48ms (compile: 42ms, render: 6ms)
-[AgentRegistry] Loaded 3 agents from CLI
- GET /api/agents 200 in 2.8s (compile: 142ms, render: 2.7s)
- GET /api/tasks 200 in 11ms (compile: 6ms, render: 5ms)
-[AgentRegistry] Loaded 3 agents from CLI
- GET /api/agents 200 in 2.7s (compile: 1983µs, render: 2.7s)
- GET /api/cron/system 200 in 68ms (compile: 49ms, render: 19ms)
-[AgentRegistry] Loaded 3 agents from CLI
- GET /api/agents 200 in 2.5s (compile: 1884µs, render: 2.5s)
- GET /api/cron/system 200 in 27ms (compile: 5ms, render: 23ms)
- GET /api/cron/openclaw 200 in 6.6s (compile: 58ms, render: 6.6s)
- GET /api/cron/openclaw 200 in 4.8s (compile: 3ms, render: 4.8s)
-[AgentRegistry] Loaded 3 agents from CLI
- GET /api/agents 200 in 2.7s (compile: 2ms, render: 2.7s)
-[AgentRegistry] Loaded 3 agents from CLI
- GET /api/agents 200 in 2.6s (compile: 1816µs, render: 2.6s)
-[AgentRegistry] Loaded 3 agents from CLI
- GET /api/agents 200 in 2.6s (compile: 2ms, render: 2.6s)
-[AgentRegistry] Loaded 3 agents from CLI
- GET /api/agents 200 in 5.3s (compile: 2.6s, render: 2.7s)
-[AgentRegistry] Loaded 3 agents from CLI
- GET /api/agents 200 in 2.6s (compile: 2ms, render: 2.6s)
-[AgentRegistry] Loaded 3 agents from CLI
- GET /api/agents 200 in 5.2s (compile: 2.6s, render: 2.6s)
-[AgentRegistry] Loaded 3 agents from CLI
- GET /api/agents 200 in 2.5s (compile: 3ms, render: 2.5s)
- GET / 200 in 45ms (compile: 6ms, render: 40ms)
- GET /api/tasks 200 in 8ms (compile: 3ms, render: 4ms)
- POST /api/command 200 in 2.6s (compile: 2ms, render: 2.6s)
-[AgentRegistry] Loaded 3 agents from CLI
- GET /api/agents 200 in 2.6s (compile: 1590µs, render: 2.6s)
-[AgentRegistry] Loaded 3 agents from CLI
- GET /api/agents 200 in 2.6s (compile: 1614µs, render: 2.6s)
- POST /api/tasks 404 in 5ms (compile: 1671µs, render: 4ms)
- GET / 200 in 39ms (compile: 1960µs, render: 38ms)
- GET /api/tasks 200 in 5ms (compile: 1626µs, render: 3ms)
-[AgentRegistry] Loaded 3 agents from CLI
- GET /api/agents 200 in 2.4s (compile: 1844µs, render: 2.4s)
- GET /api/tasks 200 in 5ms (compile: 1477µs, render: 4ms)
-[AgentRegistry] Loaded 3 agents from CLI
- GET /api/agents 200 in 2.6s (compile: 1737µs, render: 2.6s)
- GET /api/cron/system 200 in 22ms (compile: 2ms, render: 20ms)
-[AgentRegistry] Loaded 3 agents from CLI
- GET /api/agents 200 in 2.5s (compile: 2ms, render: 2.5s)
- GET /api/cron/system 200 in 21ms (compile: 3ms, render: 17ms)
- GET /api/cron/openclaw 200 in 4.1s (compile: 21ms, render: 4.0s)
-[AgentRegistry] Loaded 3 agents from CLI
- GET /api/agents 200 in 2.6s (compile: 7ms, render: 2.6s)
-[AgentRegistry] Loaded 3 agents from CLI
- GET /api/agents 200 in 2.6s (compile: 1692µs, render: 2.6s)
- POST /api/command 200 in 2.6s (compile: 2ms, render: 2.6s)
- GET /api/cron/openclaw 200 in 6.7s (compile: 2.6s, render: 4.1s)
-[AgentRegistry] Loaded 3 agents from CLI
- GET /api/agents 200 in 2.5s (compile: 2ms, render: 2.5s)
- POST /api/tasks 404 in 5ms (compile: 1533µs, render: 3ms)
-[AgentRegistry] Loaded 3 agents from CLI
- GET /api/agents 200 in 2.6s (compile: 1361µs, render: 2.6s)
-[AgentRegistry] Loaded 3 agents from CLI
- GET /api/agents 200 in 2.5s (compile: 1456µs, render: 2.5s)
-Task not found for deletion: task-1771061806257
- DELETE /api/tasks?id=task-1771061806257 404 in 6ms (compile: 1826µs, render: 4ms)
- POST /api/tasks 200 in 13ms (compile: 4ms, render: 9ms)
- POST /api/tasks 200 in 7ms (compile: 2ms, render: 5ms)
- POST /api/tasks 404 in 6ms (compile: 1787µs, render: 4ms)
- POST /api/tasks 200 in 7ms (compile: 2ms, render: 5ms)
- POST /api/tasks 200 in 8ms (compile: 1969µs, render: 6ms)
- DELETE /api/tasks?id=task-2bcddbb9 200 in 6ms (compile: 3ms, render: 4ms)
+✓ Ready in 769ms
+ GET / 200 in 499ms (compile: 349ms, render: 151ms)
+ GET /api/tasks 200 in 93ms (compile: 70ms, render: 22ms)
